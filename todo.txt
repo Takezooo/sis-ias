@@ -1,0 +1,40 @@
+Buttons - Done
+Add Student
+Update
+Delete
+View Data
+Search Student
+
+Functions?
+Add/ Create
+Student ID - Auto generate
+Name
+Birthdate
+Sex
+Age - Auto generate
+Address
+Course
+Year Level
+
+Update
+Find by Student ID
+Name
+Birthdate
+Address
+Course
+Year Level
+Cancel
+Confirm
+
+Search
+Student ID
+TreeView
+
+Delete
+Student ID
+Cancel
+Confirm
+
+View
+TreeView
+BackBtn

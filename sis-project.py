@@ -21,6 +21,8 @@ mainButtons_frame = ttkb.Frame(root, bootstyle="default")
 create_frame = ttkb.Frame(root, bootstyle="default")
 #update function
 update_frame = ttkb.Frame(root, bootstyle="default")
+#delete function
+delete_frame = ttkb.Frame(root, bootstyle="default")
 
 systemTitle_Label = ttkb.Label(text="Student Information System", font=("Helvetica", 22), bootstyle="default")
 systemTitle_Label.pack(pady=50)
@@ -52,7 +54,8 @@ update_Button.pack(pady=20)
 
 delete_Button = ttkb.Button(mainButtons_frame, text="Delete", bootstyle="primary",
                             style="primary.TButton",
-                            width=20)
+                            width=20,
+                            command=lambda:hideAndShow(mainButtons_frame, delete_frame))
 delete_Button.pack(pady=20)
 #=====================================================================================
 
@@ -218,18 +221,48 @@ yearLvlUpt_entry.grid(row=0, column=1, padx=15, pady=5)
 # BUTTONS =============================
 updateButtons_frame = ttkb.Frame(update_frame, bootstyle="default")
 updateButtons_frame.pack(pady=30)
-backUpt_button = ttkb.Button(updateButtons_frame, text="Cancel", bootstyle="warning",
+backUpt_button = ttkb.Button(updateButtons_frame, text="Back", bootstyle="warning",
                             width= 15,
                             command=lambda:hideAndShow(update_frame, mainButtons_frame))
 backUpt_button.grid(row=0, column=0, padx=18, pady=5)
 
 saveUpt_button = ttkb.Button(updateButtons_frame, text="Save", bootstyle="success",
                             width= 15,
-                            command=lambda:hideAndShow(update_frame, mainButtons_frame))
+                            command=lambda:UpdateConfirmation_popup())
 saveUpt_button.grid(row=0, column=1, padx=18, pady=5)
 
 #=====================================================================================
 
+# Delete Section =====================================================================
+
+#SEARCH STUDENT ID LABEL ==============
+studentIdDel_frame = ttkb.Frame(delete_frame, bootstyle="default")
+studentIdDel_frame.config( width=700, height=50 )
+studentIdDel_frame.pack(pady=30)
+studentIdDel_label = ttkb.Label(studentIdDel_frame, text="Student ID: ", font=("Helvetica", 12), bootstyle="default")
+studentIdDel_label.place(x=135, y=0)
+studentIdDel_entry = ttkb.Entry(studentIdDel_frame, font=("Helvetica", 10), bootstyle="default", width=18)
+studentIdDel_entry.place(x=277, y=0)
+studentIdDel_button = ttkb.Button(studentIdDel_frame, text="Search", width= 7,
+                                  bootstyle="primary",
+                                  style="update.primary.TButton")
+studentIdDel_button.place(x=475, y=0)
+#======================================
+
+# BUTTONS =============================
+deleteButtons_frame = ttkb.Frame(delete_frame, bootstyle="default")
+deleteButtons_frame.pack(pady=30)
+backDel_button = ttkb.Button(deleteButtons_frame, text="Back", bootstyle="warning",
+                            width= 15,
+                            command=lambda:hideAndShow(delete_frame, mainButtons_frame))
+backDel_button.grid(row=0, column=0, padx=18, pady=5)
+
+delete_button = ttkb.Button(deleteButtons_frame, text="Delete", bootstyle="danger",
+                            width= 15,
+                            command=lambda:DeleteConfirmation_popup())
+delete_button.grid(row=0, column=1, padx=18, pady=5)
+
+#=====================================================================================
 
 #Functions
 #hide and show toggle function
@@ -243,11 +276,20 @@ def closeWindow(window):
 def continueAddWindow(hidden, display, text):
     hidden.pack_forget()
     display.pack()
-    text.config(text=f"Student Data Saved", bootstyle="success")
+    text.config(text=f"Student Data Saved!", bootstyle="success")
 
+def continueUpdateWindow(hidden, display, text):
+    hidden.pack_forget()
+    display.pack()
+    text.config(text=f"Student Data Updated!", bootstyle="success")
+
+def continueDeleteWindow(hidden, display, text):
+    hidden.pack_forget()
+    display.pack()
+    text.config(text=f"Student Data Deleted!", bootstyle="danger")
 
 #add function
-def addStudent():
+def addAgeCompute():
     #auto compute age ========================================
     birthdate = str(birth_date.entry.get())
     day_str, month_str, year_str = birthdate.split("/")
@@ -262,7 +304,7 @@ def addStudent():
 # create confirmation function
 def addConfirmation_popup():
 
-    addStudent()
+    addAgeCompute()
 
     addTop= Toplevel(create_frame)
     addTop.geometry("350x250")
@@ -289,8 +331,61 @@ def addConfirmation_popup():
                                 width= 10,
                                 command=lambda:closeWindow(addTop))
     
+# update confirmation function
+def UpdateConfirmation_popup():
+
+    updateTop= Toplevel(create_frame)
+    updateTop.geometry("350x250")
+    updateTop.title("Confirmation Window")
+    updateTop.resizable(False,False)
+
+    updateConfirmationLabel = ttkb.Label(updateTop, text="Do you want to update this?", font=("Helvetica", 12), bootstyle="default")
+    updateConfirmationLabel.pack(pady=60)
+
+    updateConfirmationButtons_frame = ttkb.Frame(updateTop, bootstyle="default")
+    updateConfirmationButtons_frame.pack(pady=10)
+
+    updateConfirmNo_button = ttkb.Button(updateConfirmationButtons_frame, text="No", bootstyle="warning",
+                                width= 10,
+                                command=lambda:closeWindow(updateTop))
+    updateConfirmNo_button.grid(row=0, column=0, padx=18, pady=5)
+
+    updateConfirmYes_button = ttkb.Button(updateConfirmationButtons_frame, text="Yes", bootstyle="success",
+                                    width= 10,
+                                command=lambda:continueUpdateWindow(updateConfirmationButtons_frame, updateContinuation_button, updateConfirmationLabel))
+    updateConfirmYes_button.grid(row=0, column=1, padx=18, pady=5)
+
+    updateContinuation_button = ttkb.Button(updateTop, text="Ok", bootstyle="success",
+                                width= 10,
+                                command=lambda:closeWindow(updateTop))
+    
+# delete confirmation function
+def DeleteConfirmation_popup():
+
+    deleteTop= Toplevel(create_frame)
+    deleteTop.geometry("350x250")
+    deleteTop.title("Confirmation Window")
+    deleteTop.resizable(False,False)
+
+    deleteConfirmationLabel = ttkb.Label(deleteTop, text="Do you want to delete this?", font=("Helvetica", 12), bootstyle="default")
+    deleteConfirmationLabel.pack(pady=60)
+
+    deleteConfirmationButtons_frame = ttkb.Frame(deleteTop, bootstyle="default")
+    deleteConfirmationButtons_frame.pack(pady=10)
+
+    deleteConfirmNo_button = ttkb.Button(deleteConfirmationButtons_frame, text="No", bootstyle="warning",
+                                width= 10,
+                                command=lambda:closeWindow(deleteTop))
+    deleteConfirmNo_button.grid(row=0, column=0, padx=18, pady=5)
+
+    deleteConfirmYes_button = ttkb.Button(deleteConfirmationButtons_frame, text="Yes", bootstyle="danger",
+                                    width= 10,
+                                command=lambda:continueDeleteWindow(deleteConfirmationButtons_frame, deleteContinuation_button, deleteConfirmationLabel))
+    deleteConfirmYes_button.grid(row=0, column=1, padx=18, pady=5)
+
+    deleteContinuation_button = ttkb.Button(deleteTop, text="Ok", bootstyle="success",
+                                width= 10,
+                                command=lambda:closeWindow(deleteTop))
+
 #run
 root.mainloop()
-
-
-

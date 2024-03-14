@@ -7,7 +7,7 @@ import ttkbootstrap as ttkb
 #root
 root = ttkb.Window(themename="cyborg")
 root.title("Student Information System")
-root.geometry("800x750")
+root.geometry("850x750")
 
 #Style
 #for main menu/ home
@@ -18,6 +18,8 @@ style.configure("update.primary.TButton", font=("Helvetica",10))
 #Frames
 #menu buttons section
 mainButtons_frame = ttkb.Frame(root, bootstyle="default")
+#view section
+view_frame = ttkb.Frame(root, bootstyle="default")
 #add/create section
 create_frame = ttkb.Frame(root, bootstyle="default")
 #update section
@@ -41,7 +43,8 @@ add_Button.pack(pady=20)
 
 view_Button = ttkb.Button(mainButtons_frame, text="View Data", bootstyle="primary",
                             style="primary.TButton",
-                            width=20)
+                            width=20,
+                            command=lambda:display_data(mainButtons_frame, view_frame))
 view_Button.pack(pady=20)
 
 search_Button = ttkb.Button(mainButtons_frame, text="Search", bootstyle="primary",
@@ -146,6 +149,25 @@ save_button.grid(row=0, column=1, padx=18, pady=5)
 
 #=====================================================================================
 
+# View Section =====================================================================
+columns=("Name", "Birth Date", "Age", "Sex", "Address", "Course", "Year Level")
+tree = ttkb.Treeview(view_frame, columns=columns, bootstyle="dark")
+tree.heading("#0", text="Student ID")
+tree.heading("Name", text="Name")
+tree.heading("Birth Date", text="Birth Date")
+tree.heading("Age", text="Age")
+tree.heading("Sex", text="Sex")
+tree.heading("Address", text="Address")
+tree.heading("Course", text="Course")
+tree.heading("Year Level", text="Year Level")
+tree.pack(padx= 20, pady=30)
+
+viewBack_button = ttkb.Button(view_frame, text="Back", bootstyle="warning",
+                              width = 15,
+                              command=lambda:hideAndShow(view_frame, mainButtons_frame))
+viewBack_button.pack(pady=50)
+#=====================================================================================
+
 # Update Section =====================================================================
 
 #SEARCH STUDENT ID LABEL ==============
@@ -248,14 +270,10 @@ saveUpt_button.grid(row=0, column=1, padx=18, pady=5)
 studentIdDel_frame = ttkb.Frame(delete_frame, bootstyle="default")
 studentIdDel_frame.config( width=700, height=50 )
 studentIdDel_frame.pack(pady=30)
-studentIdDel_label = ttkb.Label(studentIdDel_frame, text="Student ID: ", font=("Helvetica", 12), bootstyle="default")
-studentIdDel_label.place(x=135, y=0)
-studentIdDel_entry = ttkb.Entry(studentIdDel_frame, font=("Helvetica", 10), bootstyle="default", width=18)
-studentIdDel_entry.place(x=277, y=0)
-studentIdDel_button = ttkb.Button(studentIdDel_frame, text="Search", width= 7,
-                                  bootstyle="primary",
-                                  style="update.primary.TButton")
-studentIdDel_button.place(x=475, y=0)
+studentIdDel_label = ttkb.Label(studentIdDel_frame, text="Student ID", font=("Helvetica", 12), bootstyle="default")
+studentIdDel_label.pack(pady=20)
+studentIdDel_entry = ttkb.Entry(studentIdDel_frame, font=("Helvetica", 10), bootstyle="default", width=25)
+studentIdDel_entry.pack(pady=5)
 #======================================
 
 # BUTTONS =============================
@@ -268,7 +286,7 @@ backDel_button.grid(row=0, column=0, padx=18, pady=5)
 
 delete_button = ttkb.Button(deleteButtons_frame, text="Delete", bootstyle="danger",
                             width= 15,
-                            command=lambda:DeleteConfirmation_popup())
+                            command=lambda:deleteSearch_student())
 delete_button.grid(row=0, column=1, padx=18, pady=5)
 
 #=====================================================================================
@@ -360,11 +378,6 @@ def hideAndShow(hidden, display):
     
 def closeWindow(window):
     window.destroy()
-
-def continueDeleteWindow(hidden, display, text):
-    hidden.pack_forget()
-    display.pack()
-    text.config(text=f"Student Data Deleted!", bootstyle="danger")
 
 #add functions ===============================
 # === hide and show with student id generation
@@ -535,7 +548,6 @@ def continueUpdateWindow(hidden, display, text):
         for line in updated_data:
             file.write(line + '\n')
     
-
 # === update confirmation
 def UpdateConfirmation_popup():
 
@@ -579,7 +591,51 @@ def updateCloseWindow(window):
 
 # ===========================================
 
-# delete confirmation function
+#delete functions ===========================
+
+# search delete
+def deleteSearch_student():
+    student_id = studentIdDel_entry.get()
+    with open("jornales.txt", "r") as file:
+        for line in file:
+            init_data = line.strip()
+            decryptedData = ""
+            for char in init_data:
+                a = ord(char)
+                a -= 1
+                b = chr(a)
+                decryptedData += b
+            data = decryptedData.split('_')
+            if data[0] == student_id:
+                DeleteConfirmation_popup()
+    return False
+
+
+# === delete
+def continueDeleteWindow(hidden, display, text):
+    hidden.pack_forget()
+    display.pack()
+    student_id = studentIdDel_entry.get()
+    updated_data = []
+    with open("jornales.txt", "r") as file:
+        for line in file:
+            init_data = line.strip()
+            decryptedData = ""
+            for char in init_data:
+                a = ord(char)
+                a -= 1
+                b = chr(a)
+                decryptedData += b
+            data = decryptedData.split('_')
+            if data[0] != student_id:
+                updated_data.append(line)
+
+    with open("jornales.txt", "w") as file:
+        for line in updated_data:
+            file.write(line)
+    text.config(text=f"Student Data Deleted!", bootstyle="danger")
+
+# === delete confirmation
 def DeleteConfirmation_popup():
 
     deleteTop= Toplevel(create_frame)
@@ -606,6 +662,8 @@ def DeleteConfirmation_popup():
     deleteContinuation_button = ttkb.Button(deleteTop, text="Ok", bootstyle="success",
                                 width= 10,
                                 command=lambda:closeWindow(deleteTop))
+
+# ===========================================
 
 #search functions ===========================
 # === search
@@ -645,6 +703,33 @@ def searchHideAndShow(hidden, display):
     yearLvlSrch_label .config(text=f"Year Level:")
 
 # ===========================================
+
+# view functions =============================
+# === display
+def display_data(hidden, show):
+    hidden.pack_forget() 
+    show.pack()
+
+    tree.delete(*tree.get_children())
+    with open("jornales.txt", "r") as file:
+        for line in file:
+            init_data = line.strip()
+            decryptedData = ""
+            for char in init_data:
+                a = ord(char)
+                a -= 1
+                b = chr(a)
+                decryptedData += b
+            data = decryptedData.split('_')
+            student_id = data[0]
+            name = data[1]
+            birth_date = data[2]
+            age = data[3]
+            sex = data[4]
+            address = data[5]
+            course = data[6]
+            year_level = data[7]
+            tree.insert("", "end", text=student_id, values=(name, birth_date, age, sex, address, course, year_level))
 
 #run
 root.mainloop()

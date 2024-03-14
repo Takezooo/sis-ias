@@ -1,3 +1,4 @@
+import random
 from tkinter import *
 from datetime import date
 from ttkbootstrap.constants import *
@@ -15,14 +16,16 @@ style.configure("primary.TButton", font=("Helvetica", 16))
 style.configure("update.primary.TButton", font=("Helvetica",10))
 
 #Frames
-#menu buttons
+#menu buttons section
 mainButtons_frame = ttkb.Frame(root, bootstyle="default")
-#add/create function
+#add/create section
 create_frame = ttkb.Frame(root, bootstyle="default")
-#update function
+#update section
 update_frame = ttkb.Frame(root, bootstyle="default")
-#delete function
+#delete section
 delete_frame = ttkb.Frame(root, bootstyle="default")
+#search section
+search_frame = ttkb.Frame(root, bootstyle="default")
 
 systemTitle_Label = ttkb.Label(text="Student Information System", font=("Helvetica", 22), bootstyle="default")
 systemTitle_Label.pack(pady=50)
@@ -30,20 +33,21 @@ systemTitle_Label.pack(pady=50)
 #main menu section =================================================================
 mainButtons_frame.pack(pady=20)
 
+add_Button = ttkb.Button(mainButtons_frame, text="Create", bootstyle="primary",
+                         style="primary.TButton",
+                         width=20,
+                         command=lambda:createHideAndShow(mainButtons_frame, create_frame))
+add_Button.pack(pady=20)
+
 view_Button = ttkb.Button(mainButtons_frame, text="View Data", bootstyle="primary",
                             style="primary.TButton",
                             width=20)
 view_Button.pack(pady=20)
 
-add_Button = ttkb.Button(mainButtons_frame, text="Create", bootstyle="primary",
-                         style="primary.TButton",
-                         width=20,
-                         command=lambda:hideAndShow(mainButtons_frame, create_frame))
-add_Button.pack(pady=20)
-
 search_Button = ttkb.Button(mainButtons_frame, text="Search", bootstyle="primary",
                             style="primary.TButton",
-                            width=20)
+                            width=20,
+                            command=lambda:hideAndShow(mainButtons_frame, search_frame))
 search_Button.pack(pady=20)
 
 update_Button = ttkb.Button(mainButtons_frame, text="Update", bootstyle="primary",
@@ -63,7 +67,7 @@ delete_Button.pack(pady=20)
 
 #STUDENT ID LABEL =====================
 studentID_label = ttkb.Label(create_frame, text="", font=("Helvetica", 12), bootstyle="default")
-studentID_label.pack()
+studentID_label.pack(pady=20)
 #======================================
 
 #NAME =================================
@@ -264,19 +268,92 @@ delete_button.grid(row=0, column=1, padx=18, pady=5)
 
 #=====================================================================================
 
+# Search Section =====================================================================
+
+#SEARCH STUDENT ID LABEL ==============
+studentIdSrch_frame = ttkb.Frame(search_frame, bootstyle="default")
+studentIdSrch_frame.config( width=700, height=50 )
+studentIdSrch_frame.pack(pady=30)
+studentIdSrch_label = ttkb.Label(studentIdSrch_frame, text="Student ID: ", font=("Helvetica", 12), bootstyle="default")
+studentIdSrch_label.place(x=135, y=0)
+studentIdSrch_entry = ttkb.Entry(studentIdSrch_frame, font=("Helvetica", 10), bootstyle="default", width=18)
+studentIdSrch_entry.place(x=277, y=0)
+studentIdSrch_button = ttkb.Button(studentIdSrch_frame, text="Search", width= 7,
+                                  bootstyle="primary",
+                                  style="update.primary.TButton")
+studentIdSrch_button.place(x=475, y=0)
+#======================================
+
+#NAME =================================
+nameSrch_frame = ttkb.Frame(search_frame, bootstyle="default")
+nameSrch_frame.config( width=700, height=35 )
+nameSrch_frame.pack()
+nameSrch_label = ttkb.Label(nameSrch_frame, text="Name:", font=("Helvetica", 12), bootstyle="default")
+nameSrch_label.place(x=100, y=5)
+#======================================
+
+#BIRTHDATE ============================
+birthdateSrch_frame = ttkb.Frame(search_frame, bootstyle="default")
+birthdateSrch_frame.config( width=700, height=70 )
+birthdateSrch_frame.pack()
+birthdateSrch_label = ttkb.Label(birthdateSrch_frame, text="Birth Date:", font=("Helvetica", 12), bootstyle="default")
+birthdateSrch_label.place(x=100, y=5)
+#======================================
+
+#AGE LABEL ============================
+age_labelSrch = ttkb.Label(birthdateSrch_frame, text="Age: ", font=("Helvetica", 12), bootstyle="default", width=8)
+age_labelSrch.place(x=100, y=40)
+#======================================
+
+#SEX ==================================
+sexSrch_frame = ttkb.Frame(search_frame, bootstyle="default")
+sexSrch_frame.config( width=700, height=35 )
+sexSrch_frame.pack(pady=5)
+sexSrch_label = ttkb.Label(sexSrch_frame, text="Sex:", font=("Helvetica", 12), bootstyle="default")
+sexSrch_label.place(x=100, y=5)
+#======================================
+
+#ADDRESS ==============================
+addressSrch_frame = ttkb.Frame(search_frame, bootstyle="default")
+addressSrch_frame.config( width=700, height=35 )
+addressSrch_frame.pack()
+addressSrch_label = ttkb.Label(addressSrch_frame, text="Address:", font=("Helvetica", 12), bootstyle="default")
+addressSrch_label.place(x=100, y=5)
+#======================================
+
+#COURSE ===============================
+courseSrch_frame = ttkb.Frame(search_frame, bootstyle="default")
+courseSrch_frame.config( width=700, height=35 )
+courseSrch_frame.pack()
+courseSrch_label = ttkb.Label(courseSrch_frame, text="Course:", font=("Helvetica", 12), bootstyle="default")
+courseSrch_label.place(x=100, y=5)
+#======================================
+
+#YEAR_LEVEL ===========================
+yearLvlSrch_frame = ttkb.Frame(search_frame, bootstyle="default")
+yearLvlSrch_frame.config( width=700, height=35 )
+yearLvlSrch_frame.pack()
+yearLvlSrch_label = ttkb.Label(yearLvlSrch_frame, text="Year Level:", font=("Helvetica", 12), bootstyle="default")
+yearLvlSrch_label.place(x=100, y=5)
+#======================================
+
+# BUTTONS =============================
+backSrch_button = ttkb.Button(search_frame, text="Back", bootstyle="warning",
+                            width= 15,
+                            command=lambda:hideAndShow(search_frame, mainButtons_frame))
+backSrch_button.pack(pady=20)
+#======================================
+
+#=====================================================================================
+
 #Functions
 #hide and show toggle function
 def hideAndShow(hidden, display): 
     hidden.pack_forget() 
     display.pack()
-
+    
 def closeWindow(window):
     window.destroy()
-
-def continueAddWindow(hidden, display, text):
-    hidden.pack_forget()
-    display.pack()
-    text.config(text=f"Student Data Saved!", bootstyle="success")
 
 def continueUpdateWindow(hidden, display, text):
     hidden.pack_forget()
@@ -288,7 +365,15 @@ def continueDeleteWindow(hidden, display, text):
     display.pack()
     text.config(text=f"Student Data Deleted!", bootstyle="danger")
 
-#add function
+#add functions
+# === hide and show with student id generation
+def createHideAndShow(hidden, display):
+    hidden.pack_forget() 
+    display.pack()
+    studentNumberId = random.randint(1000, 9999)
+    studentID_label.config(text=f"TUPM-{studentNumberId}") 
+
+# === compute age
 def addAgeCompute():
     #auto compute age ========================================
     birthdate = str(birth_date.entry.get())
@@ -301,7 +386,7 @@ def addAgeCompute():
     age_label.config(text=f"Age: {age}")
     # ========================================================
 
-# create confirmation function
+# === create confirmation function
 def addConfirmation_popup():
 
     addAgeCompute()
@@ -331,6 +416,41 @@ def addConfirmation_popup():
                                 width= 10,
                                 command=lambda:closeWindow(addTop))
     
+# === saving
+def continueAddWindow(hidden, display, text):
+    hidden.pack_forget()
+    display.pack()
+    studentid = str(studentID_label.cget("text"))
+    name = str(name_entry.get())
+    bday = str(birth_date.entry.get())
+    age = str(age_label.cget("text"))
+    sex = str(sex_combobox.get())
+    address = str(address_entry.get())
+    course = str(course_entry.get())
+    yearlvl = str(yearLvl_entry.get())
+    if studentid and name and bday and sex and address:
+        with open("jornales.txt", "a") as file:
+            studentData = studentid + "," + name + "," + bday + "," + age + "," + sex + "-" + address + "-" + course + "," + yearlvl
+            encryptedData = ""
+            #encryption =============================
+            for char in studentData:
+                a = ord(char)
+                a += 1
+                b = chr(a)
+                encryptedData += b
+            file.write(encryptedData + "\n")
+            #========================================
+    text.config(text=f"Student Data Saved!", bootstyle="success")
+    #reset
+    name_entry.delete(0, END)
+    sex_combobox.delete(0, END)
+    birth_date.entry.config(validate='none')
+    age_label.config(text="Age:")
+    sex_combobox.delete(0, END)
+    address_entry.delete(0, END)
+    course_entry.delete(0, END)
+    yearLvl_entry.delete(0, END)
+
 # update confirmation function
 def UpdateConfirmation_popup():
 

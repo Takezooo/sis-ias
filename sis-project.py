@@ -5,7 +5,7 @@ from ttkbootstrap.constants import *
 import ttkbootstrap as ttkb
 
 #root
-root = ttkb.Window(themename="darkly")
+root = ttkb.Window(themename="cyborg")
 root.title("Student Information System")
 root.geometry("800x750")
 
@@ -158,7 +158,8 @@ studentIdUpt_entry = ttkb.Entry(studentIdUpt_frame, font=("Helvetica", 10), boot
 studentIdUpt_entry.place(x=277, y=0)
 studentIdUpt_button = ttkb.Button(studentIdUpt_frame, text="Search", width= 7,
                                   bootstyle="primary",
-                                  style="update.primary.TButton")
+                                  style="update.primary.TButton",
+                                  command=lambda:updateSearch_student())
 studentIdUpt_button.place(x=475, y=0)
 #======================================
 
@@ -176,13 +177,17 @@ birthdateUpt_frame = ttkb.Frame(update_frame, bootstyle="default")
 birthdateUpt_frame.pack(pady=5)
 birthdateUpt_label = ttkb.Label(birthdateUpt_frame, text="Birth Date:", font=("Helvetica", 12), bootstyle="default")
 birthdateUpt_label.grid(row=0, column=0, padx=20, pady=5)
-birthUpt_date = ttkb.DateEntry(birthdateUpt_frame, bootstyle="primary", width=29)
+birthUpt_date = ttkb.DateEntry(birthdateUpt_frame, bootstyle="primary", width=29, startdate=date(2023, 3, 1))
 birthUpt_date.grid(row=0, column=1, padx=20, pady=5)
 #======================================
 
 #AGE LABEL ============================
-age_labelUpt = ttkb.Label(birthdateUpt_frame, text="Age: ", font=("Helvetica", 12), bootstyle="default", width=8)
-age_labelUpt.grid(row=1, column=0, padx=20, pady=10)
+ageUpt_frame = ttkb.Frame(update_frame, bootstyle="default")
+ageUpt_frame.pack(pady=5)
+bday_labelUpt = ttkb.Label(ageUpt_frame, text="Birthday: ", font=("Helvetica", 12), bootstyle="default", width=20)
+bday_labelUpt.grid(row=0, column=0, padx=20, pady=10)
+age_labelUpt = ttkb.Label(ageUpt_frame, text="Age: ", font=("Helvetica", 12), bootstyle="default", width=8)
+age_labelUpt.grid(row=0, column=1, padx=20, pady=10)
 #======================================
 
 #SEX ==================================
@@ -280,7 +285,8 @@ studentIdSrch_entry = ttkb.Entry(studentIdSrch_frame, font=("Helvetica", 10), bo
 studentIdSrch_entry.place(x=277, y=0)
 studentIdSrch_button = ttkb.Button(studentIdSrch_frame, text="Search", width= 7,
                                   bootstyle="primary",
-                                  style="update.primary.TButton")
+                                  style="update.primary.TButton",
+                                  command=lambda:search_student())
 studentIdSrch_button.place(x=475, y=0)
 #======================================
 
@@ -340,7 +346,7 @@ yearLvlSrch_label.place(x=100, y=5)
 # BUTTONS =============================
 backSrch_button = ttkb.Button(search_frame, text="Back", bootstyle="warning",
                             width= 15,
-                            command=lambda:hideAndShow(search_frame, mainButtons_frame))
+                            command=lambda:searchHideAndShow(search_frame, mainButtons_frame))
 backSrch_button.pack(pady=20)
 #======================================
 
@@ -355,17 +361,12 @@ def hideAndShow(hidden, display):
 def closeWindow(window):
     window.destroy()
 
-def continueUpdateWindow(hidden, display, text):
-    hidden.pack_forget()
-    display.pack()
-    text.config(text=f"Student Data Updated!", bootstyle="success")
-
 def continueDeleteWindow(hidden, display, text):
     hidden.pack_forget()
     display.pack()
     text.config(text=f"Student Data Deleted!", bootstyle="danger")
 
-#add functions
+#add functions ===============================
 # === hide and show with student id generation
 def createHideAndShow(hidden, display):
     hidden.pack_forget() 
@@ -423,14 +424,20 @@ def continueAddWindow(hidden, display, text):
     studentid = str(studentID_label.cget("text"))
     name = str(name_entry.get())
     bday = str(birth_date.entry.get())
-    age = str(age_label.cget("text"))
+    day_str, month_str, year_str = bday.split("/")
+    day = int(day_str)
+    month = int(month_str)
+    year = int(year_str)
+    today = date.today()
+    init_age = today.year - year - ((today.month, today.day) < (month, day))
+    age = str(init_age)
     sex = str(sex_combobox.get())
     address = str(address_entry.get())
     course = str(course_entry.get())
     yearlvl = str(yearLvl_entry.get())
     if studentid and name and bday and sex and address:
         with open("jornales.txt", "a") as file:
-            studentData = studentid + "," + name + "," + bday + "," + age + "," + sex + "-" + address + "-" + course + "," + yearlvl
+            studentData = studentid + "_" + name + "_" + bday + "_" + age + "_" + sex + "_" + address + "_" + course + "_" + yearlvl
             encryptedData = ""
             #encryption =============================
             for char in studentData:
@@ -451,7 +458,85 @@ def continueAddWindow(hidden, display, text):
     course_entry.delete(0, END)
     yearLvl_entry.delete(0, END)
 
-# update confirmation function
+# ===========================================
+
+#update functions ===========================
+# === search
+# Function to search for a student by ID
+def updateSearch_student():
+    student_id = studentIdUpt_entry.get()
+    with open("jornales.txt", "r") as file:
+        for line in file:
+            init_data = line.strip()
+            decryptedData=""
+            for char in init_data:
+                a = ord(char)
+                a -= 1
+                b = chr(a)
+                decryptedData += b
+            data = decryptedData.split('_')
+            if data[0] == student_id:
+                nameUpt_entry.delete(0, END)
+                nameUpt_entry.insert(0, data[1])                
+                bday_labelUpt.config(text=f"Birthday: {data[2]}")
+                age_labelUpt.config(text=f"Age: {data[3]}")
+                sexUpt_combobox.set(data[4])
+                addressUpt_entry.delete(0, END)
+                addressUpt_entry.insert(0, data[5])
+                courseUpt_entry.delete(0, END)
+                courseUpt_entry.insert(0, data[6])
+                yearLvlUpt_entry.delete(0, END)
+                yearLvlUpt_entry.insert(0, data[7])
+                return
+
+# === save update   
+def continueUpdateWindow(hidden, display, text):
+    hidden.pack_forget()
+    display.pack()
+    student_id = studentIdUpt_entry.get()
+    encryptedId=""
+    for char in student_id:
+        a = ord(char)
+        a += 1
+        b = chr(a)
+        encryptedId += b
+    updated_data = []
+    with open("jornales.txt", "r") as file:
+        for line in file:
+            data = line.strip().split('`')
+            if data[0] == encryptedId:
+                birthday = str(birthUpt_date.entry.get())
+                day_str, month_str, year_str = birthday.split("/")
+                day = int(day_str)
+                month = int(month_str)
+                year = int(year_str)
+                today = date.today()
+                age = today.year - year - ((today.month, today.day) < (month, day))
+                plainText_data = str(studentIdUpt_entry.get()) + "_" + str(nameUpt_entry.get()) + "_" + str(birthUpt_date.entry.get()) + "_" + str(age) + "_" + str(sexUpt_combobox.get()) + "_" + str(addressUpt_entry.get()) + "_" + str(courseUpt_entry.get()) + "_" + str(yearLvlUpt_entry.get())
+                encryptedData=""
+                for char in plainText_data:
+                    a = ord(char)
+                    a += 1
+                    b = chr(a)
+                    encryptedData += b
+                stid, nm, bday, age, sex, add, cor, yr = encryptedData.split('`')
+                data[0] = stid
+                data[1] = nm
+                data[2] = bday
+                data[3] = age
+                data[4] = sex
+                data[5] = add
+                data[6] = cor
+                data[7] = yr
+                text.config(text=f"Student Data Updated!", bootstyle="success")
+            updated_data.append('`'.join(data))
+
+    with open("jornales.txt", "w") as file:
+        for line in updated_data:
+            file.write(line + '\n')
+    
+
+# === update confirmation
 def UpdateConfirmation_popup():
 
     updateTop= Toplevel(create_frame)
@@ -477,8 +562,23 @@ def UpdateConfirmation_popup():
 
     updateContinuation_button = ttkb.Button(updateTop, text="Ok", bootstyle="success",
                                 width= 10,
-                                command=lambda:closeWindow(updateTop))
+                                command=lambda:updateCloseWindow(updateTop))
     
+# === clear update form
+    
+def updateCloseWindow(window):
+    studentIdUpt_entry.delete(0, END)
+    nameUpt_entry.delete(0, END)             
+    bday_labelUpt.config(text=f"Birthday: ")
+    age_labelUpt.config(text=f"Age: ")
+    sexUpt_combobox.delete(0, END)
+    addressUpt_entry.delete(0, END)
+    courseUpt_entry.delete(0, END)
+    yearLvlUpt_entry.delete(0, END)
+    window.destroy()
+
+# ===========================================
+
 # delete confirmation function
 def DeleteConfirmation_popup():
 
@@ -506,6 +606,45 @@ def DeleteConfirmation_popup():
     deleteContinuation_button = ttkb.Button(deleteTop, text="Ok", bootstyle="success",
                                 width= 10,
                                 command=lambda:closeWindow(deleteTop))
+
+#search functions ===========================
+# === search
+def search_student():
+    student_id = studentIdSrch_entry.get()
+    with open("jornales.txt", "r") as file:
+        for line in file:
+            init_data = line.strip()
+            decryptedData=""
+            for char in init_data:
+                a = ord(char)
+                a -= 1
+                b = chr(a)
+                decryptedData += b
+            data = decryptedData.split('_')
+            if data[0] == student_id:
+                nameSrch_label.config(text=f"Name: {data[1]}")
+                birthdateSrch_label.config(text=f"Birth Date: {data[2]}")
+                age_labelSrch.config(text=f"Age: {data[3]}")
+                sexSrch_label.config(text=f"Sex: {data[4]}")
+                addressSrch_label.config(text=f"Address: {data[5]}")
+                courseSrch_label.config(text=f"Course: {data[6]}")
+                yearLvlSrch_label .config(text=f"Year Level: {data[7]}")
+                return
+
+# === back search
+def searchHideAndShow(hidden, display): 
+    hidden.pack_forget() 
+    display.pack()
+    studentIdSrch_entry.delete(0, END)
+    nameSrch_label.config(text=f"Name:")
+    birthdateSrch_label.config(text=f"Birth Date:")
+    age_labelSrch.config(text=f"Age:")
+    sexSrch_label.config(text=f"Sex:")
+    addressSrch_label.config(text=f"Address:")
+    courseSrch_label.config(text=f"Course:")
+    yearLvlSrch_label .config(text=f"Year Level:")
+
+# ===========================================
 
 #run
 root.mainloop()

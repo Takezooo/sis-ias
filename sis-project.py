@@ -16,6 +16,8 @@ style.configure("primary.TButton", font=("Helvetica", 16))
 style.configure("update.primary.TButton", font=("Helvetica",10))
 
 #Frames
+#login section
+login_frame = ttkb.Frame(root, bootstyle="default")
 #menu buttons section
 mainButtons_frame = ttkb.Frame(root, bootstyle="default")
 #view section
@@ -32,9 +34,28 @@ search_frame = ttkb.Frame(root, bootstyle="default")
 systemTitle_Label = ttkb.Label(text="Student Information System", font=("Helvetica", 22), bootstyle="default")
 systemTitle_Label.pack(pady=50)
 
-#main menu section =================================================================
-mainButtons_frame.pack(pady=20)
+#login section =====================================================================
+login_frame.pack(pady=60)
+first_frame = ttkb.Frame(login_frame, bootstyle="default")
+first_frame.pack(pady=50)
+first_password= ttkb.Entry(first_frame,show="*",width=30, bootstyle="dark")
+first_password.pack(pady=20)
+first_Button = ttkb.Button(first_frame, text="Ok", bootstyle="secondary",
+                         width=20,
+                         command=lambda:firstLevel(first_frame, second_frame))
+first_Button.pack(pady=20)
 
+second_frame = ttkb.Frame(login_frame, bootstyle="default")
+second_password= ttkb.Entry(second_frame,show="*",width=30, bootstyle="dark")
+second_password.pack(pady=20)
+second_Button = ttkb.Button(second_frame, text="Ok", bootstyle="secondary",
+                         width=20,
+                         command=lambda:secondLevel(login_frame, mainButtons_frame))
+second_Button.pack(pady=20)
+
+#=====================================================================================
+
+#main menu section ===================================================================
 add_Button = ttkb.Button(mainButtons_frame, text="Create", bootstyle="primary",
                          style="primary.TButton",
                          width=20,
@@ -64,6 +85,7 @@ delete_Button = ttkb.Button(mainButtons_frame, text="Delete", bootstyle="primary
                             width=20,
                             command=lambda:hideAndShow(mainButtons_frame, delete_frame))
 delete_Button.pack(pady=20)
+
 #=====================================================================================
 
 # Create Section =====================================================================
@@ -371,6 +393,38 @@ backSrch_button.pack(pady=20)
 #=====================================================================================
 
 #Functions
+# first level encryption
+def firstLevel(hidden, display):
+    password = first_password.get()
+    encrypted = ""
+    for char in password:
+        a = ord(char)
+        a += 100
+        b = chr(a)
+        encrypted += b
+    if encrypted == "¸ÅÏÉÞÓ":
+        hidden.pack_forget() 
+        display.pack(pady=50)
+
+# second level encryption
+def secondLevel(hidden, display):
+    password = "xrTysbaWsfA"
+    num = second_password.get()
+    integers = [int(char) for char in num]
+    encrypted = ""
+    i = 0
+    print(integers)
+    for char in password:
+        a = ord(char)
+        a -= integers[i]
+        b = chr(a)
+        encrypted += b
+        i += 1
+    print("num" + str(encrypted))
+    if encrypted == "omNrsaYSrb:":
+        hidden.pack_forget() 
+        display.pack()
+
 #hide and show toggle function
 def hideAndShow(hidden, display): 
     hidden.pack_forget() 
@@ -474,8 +528,8 @@ def continueAddWindow(hidden, display, text):
 # ===========================================
 
 #update functions ===========================
+    
 # === search
-# Function to search for a student by ID
 def updateSearch_student():
     student_id = studentIdUpt_entry.get()
     with open("jornales.txt", "r") as file:
@@ -610,7 +664,6 @@ def deleteSearch_student():
                 DeleteConfirmation_popup()
     return False
 
-
 # === delete
 def continueDeleteWindow(hidden, display, text):
     hidden.pack_forget()
@@ -666,6 +719,7 @@ def DeleteConfirmation_popup():
 # ===========================================
 
 #search functions ===========================
+    
 # === search
 def search_student():
     student_id = studentIdSrch_entry.get()
@@ -705,6 +759,7 @@ def searchHideAndShow(hidden, display):
 # ===========================================
 
 # view functions =============================
+    
 # === display
 def display_data(hidden, show):
     hidden.pack_forget() 
@@ -731,5 +786,7 @@ def display_data(hidden, show):
             year_level = data[7]
             tree.insert("", "end", text=student_id, values=(name, birth_date, age, sex, address, course, year_level))
 
+# ===========================================
+            
 #run
 root.mainloop()

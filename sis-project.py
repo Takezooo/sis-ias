@@ -5,7 +5,7 @@ from ttkbootstrap.constants import *
 import ttkbootstrap as ttkb
 
 #root
-root = ttkb.Window(themename="cyborg")
+root = ttkb.Window(themename="superhero")
 root.title("Student Information System")
 root.geometry("850x750")
 
@@ -40,17 +40,11 @@ first_frame = ttkb.Frame(login_frame, bootstyle="default")
 first_frame.pack(pady=50)
 first_password= ttkb.Entry(first_frame,show="*",width=30, bootstyle="dark")
 first_password.pack(pady=20)
-first_Button = ttkb.Button(first_frame, text="Ok", bootstyle="secondary",
-                         width=20,
-                         command=lambda:firstLevel(first_frame, second_frame))
-first_Button.pack(pady=20)
-
-second_frame = ttkb.Frame(login_frame, bootstyle="default")
-second_password= ttkb.Entry(second_frame,show="*",width=30, bootstyle="dark")
+second_password= ttkb.Entry(first_frame,show="*",width=30, bootstyle="dark")
 second_password.pack(pady=20)
-second_Button = ttkb.Button(second_frame, text="Ok", bootstyle="secondary",
+second_Button = ttkb.Button(first_frame, text="Ok", bootstyle="secondary",
                          width=20,
-                         command=lambda:secondLevel(login_frame, mainButtons_frame))
+                         command=lambda:firstLevel(login_frame, mainButtons_frame))
 second_Button.pack(pady=20)
 
 #=====================================================================================
@@ -395,33 +389,20 @@ backSrch_button.pack(pady=20)
 #Functions
 # first level encryption
 def firstLevel(hidden, display):
+    #Takezooo
+    #95670181
     password = first_password.get()
-    encrypted = ""
-    for char in password:
-        a = ord(char)
-        a += 100
-        b = chr(a)
-        encrypted += b
-    if encrypted == "¸ÅÏÉÞÓ":
-        hidden.pack_forget() 
-        display.pack(pady=50)
-
-# second level encryption
-def secondLevel(hidden, display):
-    password = "xrTysbaWsfA"
     num = second_password.get()
     integers = [int(char) for char in num]
     encrypted = ""
     i = 0
-    print(integers)
     for char in password:
         a = ord(char)
         a -= integers[i]
         b = chr(a)
         encrypted += b
         i += 1
-    print("num" + str(encrypted))
-    if encrypted == "omNrsaYSrb:":
+    if encrypted == "K\e^zngn":
         hidden.pack_forget() 
         display.pack()
 
@@ -439,7 +420,20 @@ def createHideAndShow(hidden, display):
     hidden.pack_forget() 
     display.pack()
     studentNumberId = random.randint(1000, 9999)
-    studentID_label.config(text=f"TUPM-{studentNumberId}") 
+    studentId = "TUPM-"+str(studentNumberId)
+    with open("jornales.txt", "r") as file:
+        for line in file:
+            init_data = line.strip()
+            decryptedData=""
+            for char in init_data:
+                a = ord(char)
+                a -= 1
+                b = chr(a)
+                decryptedData += b
+            data = decryptedData.split('_')
+            if data[0] == studentId:
+                studentId = "TUPM-"+str(studentNumberId)
+    studentID_label.config(text=studentId)
 
 # === compute age
 def addAgeCompute():
@@ -524,6 +518,22 @@ def continueAddWindow(hidden, display, text):
     address_entry.delete(0, END)
     course_entry.delete(0, END)
     yearLvl_entry.delete(0, END)
+    studentNumberId = random.randint(1000, 9999)
+    studentId = "TUPM-"+str(studentNumberId)
+    with open("jornales.txt", "r") as file:
+        for line in file:
+            init_data = line.strip()
+            decryptedData=""
+            for char in init_data:
+                a = ord(char)
+                a -= 1
+                b = chr(a)
+                decryptedData += b
+            data = decryptedData.split('_')
+            if data[0] == studentId:
+                studentId = "TUPM-"+str(studentNumberId)
+                studentID_label.config(text=studentId)
+    studentID_label.config(text=studentId)
 
 # ===========================================
 

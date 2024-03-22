@@ -7,7 +7,7 @@ import ttkbootstrap as ttkb
 #root
 root = ttkb.Window(themename="superhero")
 root.title("Student Information System")
-root.geometry("850x750")
+root.geometry("1650x750")
 
 #Style
 #for main menu/ home
@@ -30,6 +30,8 @@ update_frame = ttkb.Frame(root, bootstyle="default")
 delete_frame = ttkb.Frame(root, bootstyle="default")
 #search section
 search_frame = ttkb.Frame(root, bootstyle="default")
+#control section
+control_frame = ttkb.Frame(root, bootstyle="default")
 
 systemTitle_Label = ttkb.Label(text="Student Information System", font=("Helvetica", 22), bootstyle="default")
 systemTitle_Label.pack(pady=50)
@@ -80,6 +82,26 @@ delete_Button = ttkb.Button(mainButtons_frame, text="Delete", bootstyle="primary
                             command=lambda:hideAndShow(mainButtons_frame, delete_frame))
 delete_Button.pack(pady=20)
 
+control_Button = ttkb.Button(mainButtons_frame, text="Control Panel", bootstyle="primary",
+                            style="primary.TButton",
+                            width=20,
+                            command=lambda:controlHideAndShow(mainButtons_frame, control_frame))
+control_Button.pack(pady=20)
+
+#=====================================================================================
+
+# Control Panel Section =====================================================================
+controlPanel_frame = ttkb.Frame(control_frame, bootstyle="default")
+controlPanel_frame.pack(pady=20)
+key_label = ttkb.Label(controlPanel_frame, text="Key: ", font=("Helvetica", 12), bootstyle="default")
+key_label.pack(pady=20)
+key_entry = ttkb.Entry(controlPanel_frame, font=("Helvetica", 10), bootstyle="default", width=30)
+key_entry.pack(pady=20)
+saveKey_Button = ttkb.Button(controlPanel_frame, text="Change", bootstyle="primary",
+                            style="primary.TButton",
+                            width=20,
+                            command=lambda:controlPanel(control_frame, mainButtons_frame))
+saveKey_Button.pack(pady=20)
 #=====================================================================================
 
 # Create Section =====================================================================
@@ -421,19 +443,21 @@ def createHideAndShow(hidden, display):
     display.pack()
     studentNumberId = random.randint(1000, 9999)
     studentId = "TUPM-"+str(studentNumberId)
-    with open("jornales.txt", "r") as file:
-        for line in file:
-            init_data = line.strip()
-            decryptedData=""
-            for char in init_data:
-                a = ord(char)
-                a -= 1
-                b = chr(a)
-                decryptedData += b
-            data = decryptedData.split('_')
-            if data[0] == studentId:
-                studentId = "TUPM-"+str(studentNumberId)
-    studentID_label.config(text=studentId)
+    with open("control.txt", "r") as keyHolder:
+        key = keyHolder.read()
+        with open("jornales.txt", "r") as file:
+            for line in file:
+                init_data = line.strip()
+                decryptedData=""
+                for char in init_data:
+                    a = ord(char)
+                    a -= int(key)
+                    b = chr(a)
+                    decryptedData += b
+                data = decryptedData.split('_')
+                if data[0] == studentId:
+                    studentId = "TUPM-"+str(studentNumberId)
+        studentID_label.config(text=studentId)
 
 # === compute age
 def addAgeCompute():
@@ -497,18 +521,20 @@ def continueAddWindow(hidden, display, text):
     course = str(course_entry.get())
     yearlvl = str(yearLvl_entry.get())
     if studentid and name and bday and sex and address:
-        with open("jornales.txt", "a") as file:
-            studentData = studentid + "_" + name + "_" + bday + "_" + age + "_" + sex + "_" + address + "_" + course + "_" + yearlvl
-            encryptedData = ""
-            #encryption =============================
-            for char in studentData:
-                a = ord(char)
-                a += 1
-                b = chr(a)
-                encryptedData += b
-            file.write(encryptedData + "\n")
-            #========================================
-    text.config(text=f"Student Data Saved!", bootstyle="success")
+        with open("control.txt", "r") as keyHolder:
+            key = keyHolder.read()
+            with open("jornales.txt", "a") as file:
+                studentData = studentid + "_" + name + "_" + bday + "_" + age + "_" + sex + "_" + address + "_" + course + "_" + yearlvl
+                encryptedData = ""
+                #encryption =============================
+                for char in studentData:
+                    a = ord(char)
+                    a += int(key)
+                    b = chr(a)
+                    encryptedData += b
+                file.write(encryptedData + "\n")
+                #========================================
+        text.config(text=f"Student Data Saved!", bootstyle="success")
     #reset
     name_entry.delete(0, END)
     sex_combobox.delete(0, END)
@@ -520,20 +546,22 @@ def continueAddWindow(hidden, display, text):
     yearLvl_entry.delete(0, END)
     studentNumberId = random.randint(1000, 9999)
     studentId = "TUPM-"+str(studentNumberId)
-    with open("jornales.txt", "r") as file:
-        for line in file:
-            init_data = line.strip()
-            decryptedData=""
-            for char in init_data:
-                a = ord(char)
-                a -= 1
-                b = chr(a)
-                decryptedData += b
-            data = decryptedData.split('_')
-            if data[0] == studentId:
-                studentId = "TUPM-"+str(studentNumberId)
-                studentID_label.config(text=studentId)
-    studentID_label.config(text=studentId)
+    with open("control.txt", "r") as keyHolder:
+        key = keyHolder.read()
+        with open("jornales.txt", "r") as file:
+            for line in file:
+                init_data = line.strip()
+                decryptedData=""
+                for char in init_data:
+                    a = ord(char)
+                    a -= int(key)
+                    b = chr(a)
+                    decryptedData += b
+                data = decryptedData.split('_')
+                if data[0] == studentId:
+                    studentId = "TUPM-"+str(studentNumberId)
+                    studentID_label.config(text=studentId)
+        studentID_label.config(text=studentId)
 
 # ===========================================
 
@@ -542,75 +570,79 @@ def continueAddWindow(hidden, display, text):
 # === search
 def updateSearch_student():
     student_id = studentIdUpt_entry.get()
-    with open("jornales.txt", "r") as file:
-        for line in file:
-            init_data = line.strip()
-            decryptedData=""
-            for char in init_data:
-                a = ord(char)
-                a -= 1
-                b = chr(a)
-                decryptedData += b
-            data = decryptedData.split('_')
-            if data[0] == student_id:
-                nameUpt_entry.delete(0, END)
-                nameUpt_entry.insert(0, data[1])                
-                bday_labelUpt.config(text=f"Birthday: {data[2]}")
-                age_labelUpt.config(text=f"Age: {data[3]}")
-                sexUpt_combobox.set(data[4])
-                addressUpt_entry.delete(0, END)
-                addressUpt_entry.insert(0, data[5])
-                courseUpt_entry.delete(0, END)
-                courseUpt_entry.insert(0, data[6])
-                yearLvlUpt_entry.delete(0, END)
-                yearLvlUpt_entry.insert(0, data[7])
-                return
+    with open("control.txt", "r") as keyHolder:
+        key = keyHolder.read()
+        with open("jornales.txt", "r") as file:
+            for line in file:
+                init_data = line.strip()
+                decryptedData=""
+                for char in init_data:
+                    a = ord(char)
+                    a -= int(key)
+                    b = chr(a)
+                    decryptedData += b
+                data = decryptedData.split('_')
+                if data[0] == student_id:
+                    nameUpt_entry.delete(0, END)
+                    nameUpt_entry.insert(0, data[1])                
+                    bday_labelUpt.config(text=f"Birthday: {data[2]}")
+                    age_labelUpt.config(text=f"Age: {data[3]}")
+                    sexUpt_combobox.set(data[4])
+                    addressUpt_entry.delete(0, END)
+                    addressUpt_entry.insert(0, data[5])
+                    courseUpt_entry.delete(0, END)
+                    courseUpt_entry.insert(0, data[6])
+                    yearLvlUpt_entry.delete(0, END)
+                    yearLvlUpt_entry.insert(0, data[7])
+                    return
 
 # === save update   
 def continueUpdateWindow(hidden, display, text):
     hidden.pack_forget()
     display.pack()
-    student_id = studentIdUpt_entry.get()
-    encryptedId=""
-    for char in student_id:
-        a = ord(char)
-        a += 1
-        b = chr(a)
-        encryptedId += b
-    updated_data = []
-    with open("jornales.txt", "r") as file:
-        for line in file:
-            data = line.strip().split('`')
-            if data[0] == encryptedId:
-                birthday = str(birthUpt_date.entry.get())
-                day_str, month_str, year_str = birthday.split("/")
-                day = int(day_str)
-                month = int(month_str)
-                year = int(year_str)
-                today = date.today()
-                age = today.year - year - ((today.month, today.day) < (month, day))
-                plainText_data = str(studentIdUpt_entry.get()) + "_" + str(nameUpt_entry.get()) + "_" + str(birthUpt_date.entry.get()) + "_" + str(age) + "_" + str(sexUpt_combobox.get()) + "_" + str(addressUpt_entry.get()) + "_" + str(courseUpt_entry.get()) + "_" + str(yearLvlUpt_entry.get())
-                encryptedData=""
-                for char in plainText_data:
-                    a = ord(char)
-                    a += 1
-                    b = chr(a)
-                    encryptedData += b
-                stid, nm, bday, age, sex, add, cor, yr = encryptedData.split('`')
-                data[0] = stid
-                data[1] = nm
-                data[2] = bday
-                data[3] = age
-                data[4] = sex
-                data[5] = add
-                data[6] = cor
-                data[7] = yr
-                text.config(text=f"Student Data Updated!", bootstyle="success")
-            updated_data.append('`'.join(data))
+    with open("control.txt", "r") as keyHolder:
+        key = keyHolder.read()
+        student_id = studentIdUpt_entry.get()
+        encryptedId=""
+        for char in student_id:
+            a = ord(char)
+            a += int(key)
+            b = chr(a)
+            encryptedId += b
+        updated_data = []
+        with open("jornales.txt", "r") as file:
+            for line in file:
+                data = line.strip().split('`')
+                if data[0] == encryptedId:
+                    birthday = str(birthUpt_date.entry.get())
+                    day_str, month_str, year_str = birthday.split("/")
+                    day = int(day_str)
+                    month = int(month_str)
+                    year = int(year_str)
+                    today = date.today()
+                    age = today.year - year - ((today.month, today.day) < (month, day))
+                    plainText_data = str(studentIdUpt_entry.get()) + "_" + str(nameUpt_entry.get()) + "_" + str(birthUpt_date.entry.get()) + "_" + str(age) + "_" + str(sexUpt_combobox.get()) + "_" + str(addressUpt_entry.get()) + "_" + str(courseUpt_entry.get()) + "_" + str(yearLvlUpt_entry.get())
+                    encryptedData=""
+                    for char in plainText_data:
+                        a = ord(char)
+                        a += int(key)
+                        b = chr(a)
+                        encryptedData += b
+                    stid, nm, bday, age, sex, add, cor, yr = encryptedData.split('`')
+                    data[0] = stid
+                    data[1] = nm
+                    data[2] = bday
+                    data[3] = age
+                    data[4] = sex
+                    data[5] = add
+                    data[6] = cor
+                    data[7] = yr
+                    text.config(text=f"Student Data Updated!", bootstyle="success")
+                updated_data.append('`'.join(data))
 
-    with open("jornales.txt", "w") as file:
-        for line in updated_data:
-            file.write(line + '\n')
+        with open("jornales.txt", "w") as file:
+            for line in updated_data:
+                file.write(line + '\n')
     
 # === update confirmation
 def UpdateConfirmation_popup():
@@ -660,19 +692,21 @@ def updateCloseWindow(window):
 # search delete
 def deleteSearch_student():
     student_id = studentIdDel_entry.get()
-    with open("jornales.txt", "r") as file:
-        for line in file:
-            init_data = line.strip()
-            decryptedData = ""
-            for char in init_data:
-                a = ord(char)
-                a -= 1
-                b = chr(a)
-                decryptedData += b
-            data = decryptedData.split('_')
-            if data[0] == student_id:
-                DeleteConfirmation_popup()
-    return False
+    with open("control.txt", "r") as keyHolder:
+        key = keyHolder.read()
+        with open("jornales.txt", "r") as file:
+            for line in file:
+                init_data = line.strip()
+                decryptedData = ""
+                for char in init_data:
+                    a = ord(char)
+                    a -= int(key)
+                    b = chr(a)
+                    decryptedData += b
+                data = decryptedData.split('_')
+                if data[0] == student_id:
+                    DeleteConfirmation_popup()
+        return False
 
 # === delete
 def continueDeleteWindow(hidden, display, text):
@@ -680,18 +714,20 @@ def continueDeleteWindow(hidden, display, text):
     display.pack()
     student_id = studentIdDel_entry.get()
     updated_data = []
-    with open("jornales.txt", "r") as file:
-        for line in file:
-            init_data = line.strip()
-            decryptedData = ""
-            for char in init_data:
-                a = ord(char)
-                a -= 1
-                b = chr(a)
-                decryptedData += b
-            data = decryptedData.split('_')
-            if data[0] != student_id:
-                updated_data.append(line)
+    with open("control.txt", "r") as keyHolder:
+        key = keyHolder.read()
+        with open("jornales.txt", "r") as file:
+            for line in file:
+                init_data = line.strip()
+                decryptedData = ""
+                for char in init_data:
+                    a = ord(char)
+                    a -= int(key)
+                    b = chr(a)
+                    decryptedData += b
+                data = decryptedData.split('_')
+                if data[0] != student_id:
+                    updated_data.append(line)
 
     with open("jornales.txt", "w") as file:
         for line in updated_data:
@@ -733,25 +769,27 @@ def DeleteConfirmation_popup():
 # === search
 def search_student():
     student_id = studentIdSrch_entry.get()
-    with open("jornales.txt", "r") as file:
-        for line in file:
-            init_data = line.strip()
-            decryptedData=""
-            for char in init_data:
-                a = ord(char)
-                a -= 1
-                b = chr(a)
-                decryptedData += b
-            data = decryptedData.split('_')
-            if data[0] == student_id:
-                nameSrch_label.config(text=f"Name: {data[1]}")
-                birthdateSrch_label.config(text=f"Birth Date: {data[2]}")
-                age_labelSrch.config(text=f"Age: {data[3]}")
-                sexSrch_label.config(text=f"Sex: {data[4]}")
-                addressSrch_label.config(text=f"Address: {data[5]}")
-                courseSrch_label.config(text=f"Course: {data[6]}")
-                yearLvlSrch_label .config(text=f"Year Level: {data[7]}")
-                return
+    with open("control.txt", "r") as keyHolder:
+        key = keyHolder.read()
+        with open("jornales.txt", "r") as file:
+            for line in file:
+                init_data = line.strip()
+                decryptedData=""
+                for char in init_data:
+                    a = ord(char)
+                    a -= int(key)
+                    b = chr(a)
+                    decryptedData += b
+                data = decryptedData.split('_')
+                if data[0] == student_id:
+                    nameSrch_label.config(text=f"Name: {data[1]}")
+                    birthdateSrch_label.config(text=f"Birth Date: {data[2]}")
+                    age_labelSrch.config(text=f"Age: {data[3]}")
+                    sexSrch_label.config(text=f"Sex: {data[4]}")
+                    addressSrch_label.config(text=f"Address: {data[5]}")
+                    courseSrch_label.config(text=f"Course: {data[6]}")
+                    yearLvlSrch_label .config(text=f"Year Level: {data[7]}")
+                    return
 
 # === back search
 def searchHideAndShow(hidden, display): 
@@ -776,27 +814,74 @@ def display_data(hidden, show):
     show.pack()
 
     tree.delete(*tree.get_children())
-    with open("jornales.txt", "r") as file:
-        for line in file:
-            init_data = line.strip()
-            decryptedData = ""
-            for char in init_data:
-                a = ord(char)
-                a -= 1
-                b = chr(a)
-                decryptedData += b
-            data = decryptedData.split('_')
-            student_id = data[0]
-            name = data[1]
-            birth_date = data[2]
-            age = data[3]
-            sex = data[4]
-            address = data[5]
-            course = data[6]
-            year_level = data[7]
-            tree.insert("", "end", text=student_id, values=(name, birth_date, age, sex, address, course, year_level))
+    with open("control.txt", "r") as keyHolder:
+        key = keyHolder.read()
+        with open("jornales.txt", "r") as file:
+            for line in file:
+                init_data = line.strip()
+                decryptedData = ""
+                for char in init_data:
+                    a = ord(char)
+                    a -= int(key)
+                    b = chr(a)
+                    decryptedData += b
+                data = decryptedData.split('_')
+                student_id = data[0]
+                name = data[1]
+                birth_date = data[2]
+                age = data[3]
+                sex = data[4]
+                address = data[5]
+                course = data[6]
+                year_level = data[7]
+                tree.insert("", "end", text=student_id, values=(name, birth_date, age, sex, address, course, year_level))
 
 # ===========================================
-            
+
+#Control Panel ==============================
+def controlPanel(hidden, display):
+    hidden.pack_forget() 
+    display.pack()
+    newKey = key_entry.get()
+    if (int(newKey) >= 8):
+        newKey = int(newKey) - 4
+    with open('control.txt') as fp:
+        oldKey = fp.read()
+        decryptedList = []
+        with open("jornales.txt") as file:
+            for line in file:
+                init_data = line.strip()
+                decryptedData = ""
+                for char in init_data:
+                    a = ord(char)
+                    a -= int(oldKey)
+                    b = chr(a)
+                    decryptedData += b
+                decryptedList.append(decryptedData)
+            with open("jornales.txt", 'w') as remove:
+                remove.write("")
+            with open("jornales.txt", 'a') as new:
+                for line in decryptedList:
+                    encryptedData = ""
+                    for char in line:
+                        a = ord(char)
+                        a += int(newKey)
+                        b = chr(a)
+                        encryptedData += b
+                    print("done Encryption")
+                    print(encryptedData)
+                    new.write(encryptedData + "\n")
+        with open("control.txt", "w") as newkey:
+            newkey.write(str(newKey))
+
+def controlHideAndShow(hidden, display): 
+    hidden.pack_forget() 
+    display.pack()
+    with open('control.txt') as fp:
+        key = fp.read()
+        key_label.config(text=f"Key: {key}")
+
+# ============================================
+    
 #run
 root.mainloop()
